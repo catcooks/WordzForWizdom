@@ -1,0 +1,35 @@
+{
+  "goblin": {
+    "name": "Goblin",
+    "hp": 150,
+    "baseDmg": 10,
+    "critDmg": 100,
+    "powerAtk": 200,
+    "powerGauge": 0
+  },
+  "mage": {
+    "name": "Mage",
+    "hp": 200,
+    "mana": 50,
+    "baseDmg": 10,
+    "powerAtk": 40,
+    "powerGauge": 0,
+    "ability": "spell at 50% hp"
+  },
+  "rogue": {
+    "name": "Rogue",
+    "hp": 250,
+    "mana": 50,
+    "baseDmg": 10,
+    "powerGauge": 0,
+    "ability": "stealth on wrong input"
+  },
+  "alchemist": {
+    "name": "Alchemist",
+    "hp": 300,
+    "baseDmg": 10,
+    "powerAtk": 40,
+    "powerGauge": 0,
+    "ability": "potions at health intervals"
+  }
+}

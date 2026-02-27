@@ -1,0 +1,161 @@
+import LetterWheel from '../gameObjects/LetterWheel.js';
+import Mage from '../gameObjects/Mage.js';
+import Goblin from '../gameObjects/Goblin.js';
+import Shuffle from '../gameObjects/Shuffle.js';
+
+export class Game extends Phaser.Scene {
+    constructor() {
+        super('Game');
+    }
+
+    create() {
+        this.add.image(this.scale.width / 2, this.scale.height / 2, 'bg-game');
+        this.letterWheel = new LetterWheel(this, this.scale.width / 2, this.scale.height - 200);
+
+        this.goblin = new Goblin(this, 900, this.scale.height - 500);
+        this.player = new Mage(this, 260, this.scale.height - 300);
+        this.letterWheel.setScale(0.7);
+        console.log("Game Scene: Stage is set!");
+
+        // Calculate the distance between the Mage and the Wheel
+        const offsetX = this.letterWheel.x - this.player.x;
+        const offsetY = this.letterWheel.y - this.player.y;
+        this.shuffleBtn = new Shuffle(this, this.letterWheel.x, this.letterWheel.y, this.letterWheel);
+
+        // Move the player's power bar components to that exact offset
+        this.player.powerBarBg.setPosition(offsetX, offsetY);
+        this.player.powerBar.setPosition(offsetX, offsetY);
+        let pwrScale = 0.4;
+        this.player.powerBar.setScale(pwrScale);
+        this.player.powerBarBg.setScale(pwrScale);
+        //cheatkey
+        this.input.keyboard.on('keydown-P', () => {
+            console.log("Cheat Active: Power Maxed!");
+            this.player.updatePower(100);
+        });
+
+        this.input.keyboard.on('keydown-H', () => {
+            console.log("Cheat Active: Health Restored!");
+            this.player.takeDamage(90); // Negative damage = healing
+        });
+        this.input.keyboard.on('keydown-S', () => {
+            this.shuffleBtn.executeShuffle();
+        });
+    }
+
+
+    handleAttack(word, isTarget, letterObjects) {
+        let totalDamage = 0;
+        let effectsFound = [];
+        let shouldSkipAttack = false;
+        let length = word.length;
+
+        letterObjects.forEach((letter, i) => {
+            if (typeof letter.execute === 'function') {
+                const result = letter.execute(this.player, this.goblin, i, length,);
+
+                if (result.cancelAttack) shouldSkipAttack = true;
+
+                totalDamage += result.damage;
+
+                if (result.isUsed) effectsFound.push(letter.effectType);
+                if (result.isCritical) {
+                    isTarget = true;
+                }
+            }
+
+            else {
+                totalDamage += 5; // Standard letter damage
+            }
+
+        });
+
+        if (!shouldSkipAttack) {
+            this.player.fireSpell(isTarget, effectsFound, totalDamage, this.goblin);
+        }
+    }
+
+    // Inside Game.js
+handleCombat(attacker, target) {
+    if (!target || target.hp <= 0) return;
+
+    let damage = attacker.attackDamage || 0;
+    
+    // --- NEW CRITICAL LOGIC REUSING YOUR FUNCTION ---
+    // Check if the attacker (the Mage) has an isCritical flag set to true
+    if (attacker.isCritical) {
+        this.showDamageText(target.x, target.y - 100, "CRITICAL!", "#ffff00");
+    }
+
+    // Shield logic
+    if (target.shield && target.shield > 0) {
+        if (damage >= target.shield) {
+            damage -= target.shield;
+            target.shield = 0;
+        } else {
+            target.shield -= damage;
+            damage = 0;
+        }
+        if (target.updateShieldVisuals) target.updateShieldVisuals();
+    }
+
+    target.hp = Math.max(0, target.hp - damage);
+    if (target.stats) target.stats.updateHealth();
+
+    // Visuals
+    const color = (damage === 0) ? "#00ffff" : "#ff0000";
+    const text = (damage === 0) ? "BLOCKED" : `-${damage}`;
+    
+    // This shows the damage number at the same time as the critical text
+    this.showDamageText(target.x, target.y, text, color);
+
+        this.cameras.main.shake(100, 0.01);
+
+        this.tweens.add({
+            targets: target.sprite,
+            tint: 0xff0000,
+            duration: 100,
+            yoyo: true,
+            onComplete: () => target.sprite.clearTint()
+        });
+
+        if (target.hp <= 0 && typeof target.die === 'function') {
+            target.die();
+        }
+        if (this.player.hp <= 0) {
+            this.triggerGameOver();
+        }
+    }
+    triggerGameOver() {
+        this.time.delayedCall(1000, () => {
+            // 1. Pause this scene so the game stops in the background
+            this.scene.pause();
+
+            // 2. Launch the GameOver scene as an overlay
+            // Use 'launch' instead of 'start'
+            this.scene.launch('GameOver', { score: this.currentScore });
+        });
+    }
+
+
+
+    // Add 'textColor' to the arguments list here 
+    showDamageText(x, y, amount, textColor = '#ff0000') { // Make sure 'textColor' is here
+        const text = this.add.text(x, y - 50, amount, {
+            fontFamily: 'MagicFont',
+            fontSize: '48px',
+            color: textColor, // AND HERE
+            stroke: '#ffffff',
+            strokeThickness: 4
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: text,
+            y: y - 150,
+            alpha: 0,
+            duration: 1500,
+            ease: 'Cubic.easeOut',
+            onComplete: () => text.destroy()
+        });
+    }
+}
