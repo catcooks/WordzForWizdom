@@ -5,6 +5,8 @@ import { Start } from './scenes/Start.js';
 import { Game } from './scenes/Game.js';
 import { GameOver } from './scenes/GameOver.js';
 import { PlayerSelection } from './scenes/PlayerSelection.js';
+import { Settings } from './scenes/Settings.js';
+import { Help } from './scenes/Help.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -13,6 +15,12 @@ const config = {
     parent: 'game-container',
     width: 1280,
     height: 720,
+    scale: {
+        // This fits the game to the screen while maintaining aspect ratio
+        mode: Phaser.Scale.FIT,
+        // This centers the game canvas vertically and horizontally
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     backgroundColor: '#000000',
     pixelArt: true,
     physics: {
@@ -29,6 +37,8 @@ const config = {
         Game,
         GameOver,
         PlayerSelection,
+        Settings,
+        Help,
     ],
     scale: {
         mode: Phaser.Scale.FIT,

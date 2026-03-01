@@ -76,7 +76,7 @@ export default class Player extends Phaser.GameObjects.Container {
         }
     }
 
-    fireSpell(isCritical, buffs, finalDamage, targetEnemy) {
+    fireSpell(isCritical, buffs, finalDamage, targetEnemy, onHitCallback) {
         let color = isCritical ? 0xffcc00 : 0x00ffff;
         if (buffs.includes('fire')) color = 0xff4444;
 
@@ -93,6 +93,9 @@ export default class Player extends Phaser.GameObjects.Container {
                 spell.destroy();
                 this.scene.handleCombat({ attackDamage: finalDamage, isCritical: isCritical }, targetEnemy);
                 this.updatePower(finalDamage * 0.1);
+
+                // TRIGGER THE FREEZE HERE
+                if (onHitCallback) onHitCallback();
             }
         });
     }
@@ -125,20 +128,19 @@ export default class Player extends Phaser.GameObjects.Container {
             onComplete: () => this.stats.updateMana() // Reset colors
         });
     }
-    fire(wordLength, multiplier, isTarget) {
-        let damage = wordLength * 10 * multiplier;
-        if (isTarget) damage *= 2;
 
-        // Ultimate Logic
+    fire(calculatedDamage, isTarget) {
+        let finalDamage = calculatedDamage;
         if (this.currentPower >= this.maxPower) {
-            damage *= 2; // Double damage for Ultimate
-            this.updatePower(-100); // This resets visuals automatically
+            finalDamage *= 2;
+            this.updatePower(-100);
+            this.scene.showDamageText(this.x, this.y - 100, "ULTIMATE!", "#ff00ff");
         } else {
-            this.updatePower(damage * 0.2);
+            this.updatePower(finalDamage * 1);
         }
 
-        this.playAttack(); // Triggers your mage's swing animation
-        return damage;
+        this.playAttack();
+        return finalDamage;
     }
 
     hit(amount) {

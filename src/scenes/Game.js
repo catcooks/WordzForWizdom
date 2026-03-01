@@ -66,25 +66,54 @@ export class Game extends Phaser.Scene {
     }
 
     handleAttack(word, isTarget, letterObjects) {
-        let totalDamage = 0;
+        let rawBaseDamage = 0;
+        let totalFreeze = 0;
         let effectsFound = [];
         let shouldSkipAttack = false;
-        let length = word.length;
+        const length = word.length;
 
+        // PASS 1: Get the Multiplier first
+        let totalMultiplier = 1;
+
+        letterObjects.forEach(l => {
+            if (l.effectType === 'fire') totalMultiplier *= 1.5;
+        });
+
+        // PASS 2: Collect all RAW values
         letterObjects.forEach((letter, i) => {
             if (typeof letter.execute === 'function') {
                 const result = letter.execute(this.player, this.mob, i, length);
-                if (result.cancelAttack) shouldSkipAttack = true;
-                totalDamage += result.damage;
-                if (result.isUsed) effectsFound.push(letter.effectType);
+
+                // Keep track of effects and criticals
                 if (result.isCritical) isTarget = true;
+                if (result.cancelAttack) shouldSkipAttack = true;
+                if (result.isUsed) effectsFound.push(letter.effectType);
+
+                // Add the RAW damage from the special letter
+                rawBaseDamage += result.damage;
+
+                // Add the RAW freeze power
+                if (result.freezePower) {
+                    totalFreeze += (result.freezePower * Math.max(1, Math.round(length / 4))) * totalMultiplier;
+                }
             } else {
-                totalDamage += 5;
+                // Add RAW damage for normal letters (5)
+                rawBaseDamage += 5;
             }
         });
+        let finalDamage = Math.round(rawBaseDamage * totalMultiplier);
 
-        if (!shouldSkipAttack) {
-            this.player.fireSpell(isTarget, effectsFound, totalDamage, this.mob);
+        if (shouldSkipAttack) {    
+            if (totalFreeze > 0) this.mob.applyFreeze(totalFreeze);
+        
+        } else {    
+            const actualDamageDealt = this.player.fire(finalDamage, isTarget);
+    
+            this.player.fireSpell(isTarget, effectsFound, actualDamageDealt, this.mob, () => {        
+                if (totalFreeze > 0) {
+                    this.mob.applyFreeze(totalFreeze);
+                }
+            });
         }
     }
 
@@ -123,7 +152,15 @@ export class Game extends Phaser.Scene {
             tint: 0xff0000,
             duration: 100,
             yoyo: true,
-            onComplete: () => target.sprite.clearTint()
+            onComplete: () => {
+                // INSTEAD of target.sprite.clearTint();
+                // Check if the enemy is still frozen!
+                if (target.isFrozen) {
+                    target.sprite.setTint(0x00ffff); // Keep them Blue if frozen
+                } else {
+                    target.sprite.clearTint(); // Otherwise clear it
+                }
+            }
         });
 
         // Check for Death

@@ -1,4 +1,4 @@
-// Base Letter Class - Add "export" here!
+
 export class Letter extends Phaser.GameObjects.Container {
     constructor(scene, x, y, char, effect) {
         super(scene, x, y);
@@ -25,64 +25,58 @@ export class FireLetter extends Letter {
         this.effectType = 'fire';
     }
 
-    // FireLetter.js
-    // Match the order: character, target, index, length
-    execute(character, target, index, length) {
+    execute(character, target, index, length, multiplier) {
         const isFirst = (index === 0);
+        // If it's the first letter, it does 30 base damage instead of 15
         const damageAmount = isFirst ? 30 : 15;
 
         return {
             damage: damageAmount,
-            isCritical: isFirst,
-            isUsed: true // Added this so effectsFound.push works!
+            isCritical: isFirst, // This triggers the yellow text in handleAttack
+            isUsed: true
         };
     }
-
 }
 
-// Inside Letter.js
+
 
 export class HealLetter extends Letter {
     execute(character, target, index, wordLength) {
-        // ONLY ACTIVATE IF FIRST
+
         if (index === 0) {
-            const manaCost = 10 * (Math.round(wordLength / 2));
+            const manaCost = 5 * (Math.round(wordLength / 2));
             const currentMp = character.Mp || 0;
 
-            // --- CHECK FOR MANA ---
+
             if (currentMp >= manaCost) {
                 const healAmount = 10 * (Math.round(wordLength / 2));
 
-                // Deduct Mana
+
                 character.Mp -= manaCost;
 
-                // Apply Heal with Max HP limit
+
                 character.hp = Math.min(character.hp + healAmount, character.maxHp);
 
                 if (character.onHealed) character.onHealed(healAmount);
 
                 return { damage: 0, cancelAttack: true, isUsed: true };
             }
-
-            // If mana is insufficient, it skips this block and does damage below
         }
-
-        // Normal attack if not first letter OR if mana was too low
         return { damage: 5, cancelAttack: false, isUsed: false };
     }
 }
 
-export class IceLetter extends Letter {
+export class ShieldLetter extends Letter {
     execute(character, target, index, wordLength) {
         if (index === 0) {
-            const manaCost = 10 * (Math.round(wordLength / 2));
+            const manaCost = 5 * (Math.round(wordLength / 2));
             const currentMp = character.Mp || 0;
             if (currentMp >= manaCost) {
                 const currentShield = character.shield || 0;
                 const maxLimit = character.maxShield || 50;
                 const shieldAmount = 25 * (Math.round(wordLength / 4));
 
-                // Apply Shield and Deduct Mana
+                
                 character.shield = Math.min(currentShield + shieldAmount, maxLimit);
                 character.Mp -= manaCost;
 
@@ -91,11 +85,34 @@ export class IceLetter extends Letter {
                 return { damage: 0, cancelAttack: true, isUsed: true };
             }
         }
-
-        // If it's not the first letter OR not enough mana, do standard damage
         return { damage: 5, cancelAttack: false, isUsed: false };
     }
 }
+export class IceLetter extends Letter {
+    constructor(scene, x, y, char, data) {
+        super(scene, x, y, char, data);
+        this.effectType = 'ice';
+    }
+
+    execute(character, target, index, wordLength) {
+        const manaCost = 10;
+        if (character.Mp >= manaCost) {
+            character.Mp -= manaCost;
+            character.stats.updateMana();
+
+            return {
+                damage: 5,
+                isUsed: true,
+                // We return a RAW power value (base 3 seconds)
+                freezePower: 3000, 
+                cancelAttack: false
+            };
+        }
+        character.onOutOfMana();
+        return { damage: 5, isUsed: false };
+    }
+}
+
 
 export class VoidLetter extends Letter {
     constructor(scene, x, y, char, data) {

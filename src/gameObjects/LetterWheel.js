@@ -1,4 +1,4 @@
-import { Letter, FireLetter, HealLetter, IceLetter, VoidLetter } from './Letter.js';
+import { Letter, FireLetter, HealLetter, ShieldLetter, VoidLetter, IceLetter } from './Letter.js';
 
 export default class LetterWheel extends Phaser.GameObjects.Container {
     constructor(scene, x, y) {
@@ -55,15 +55,19 @@ export default class LetterWheel extends Phaser.GameObjects.Container {
     createWheel() {
         const count = this.letters.length;
         const effectClasses = {
-            'fire': FireLetter, 'heal': HealLetter,
-            'ice': IceLetter, 'void': VoidLetter
+            'fire': FireLetter,
+            'heal': HealLetter,
+            'shield': ShieldLetter,
+            'void': VoidLetter,
+            'ice': IceLetter // 1. Map the new ice class
         };
 
         const effectsData = [
             { name: 'fire', color: 0xff4444 },
             { name: 'heal', color: 0x44ff44 },
             { name: 'void', color: 0xaa44ff },
-            { name: 'ice', color: 0x4444ff }
+            { name: 'shield', color: 0x4444ff },
+            { name: 'ice', color: 0x00ffff } // 2. Add Ice with Cyan color
         ];
 
         let letterAssignments = [...effectsData];
@@ -171,7 +175,7 @@ export default class LetterWheel extends Phaser.GameObjects.Container {
         if (colorStr === '#ffff00') lineColor = 0xffff00;
 
         const firstLetter = this.selectedSequence[0].parentContainer;
-        if (firstLetter.effectType === 'ice') {
+        if (firstLetter.effectType === 'shield') {
             lineColor = 0x00ffff;
         } else if (firstLetter.effectType === 'heal') {
             lineColor = 0x44ff44;
@@ -261,7 +265,7 @@ export default class LetterWheel extends Phaser.GameObjects.Container {
             const firstLetter = this.selectedSequence[0].parentContainer;
             let tintColor = 0xffffff;
 
-            if (firstLetter.effectType === 'ice') tintColor = 0x00ffff;
+            if (firstLetter.effectType === 'shield') tintColor = 0x00ffff;
             else if (firstLetter.effectType === 'heal') tintColor = 0x44ff44;
             else {
                 const colorStr = this.inputTextUI.style.color;

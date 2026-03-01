@@ -10,48 +10,45 @@ export class Start extends Phaser.Scene {
         this.add.image(width / 2, height / 2, 'bg-start');
 
         // 2. Title Label
-        this.add.text(width / 2, 100, 'Wordz for Wizdom', {
+        this.add.text(width / 2, 100, 'WORDZ FOR WIZDOM', {
             fontFamily: 'MagicFont',
             fontSize: '84px',
             stroke: '#000000',
             strokeThickness: 6
         }).setOrigin(0.5);
-
+        let buttonX = (width / 2) * 1.6;
         // 3. Create Buttons
-        this.createButton(width / 2, height * 0.5, 'PLAY', () => {
+        this.createButton(buttonX, height * 0.5, 'PLAY', () => {
             this.scene.start('PlayerSelection');
         });
 
-        this.createButton(width / 2, height * 0.65, 'SETTINGS', () => {
-            console.log("Settings Opened");
-            // You can add a popup or overlay here later
+        this.createButton(buttonX, height * 0.65, 'SETTINGS', () => {
+            this.scene.launch('Settings');
         });
 
-        this.createButton(width / 2, height * 0.8, 'HELP', () => {
-            console.log("Help Opened");
+        this.createButton(buttonX, height * 0.8, 'HELP', () => {
+            this.scene.launch('Help');
         });
     }
 
     // Helper function to create interactive buttons easily
     createButton(x, y, label, callback) {
-        const btnWidth = 300;
-        const btnHeight = 80;
 
         // Button Container (Background + Text)
-        const container = this.add.container(x, y);
-
-        const bg = this.add.rectangle(0, 0, btnWidth, btnHeight, 0x332d1f, 0.9)
+        this.container = this.add.container(x, y);
+        const bg = this.add.image(0, 0, 'btn-start')
+            .setScale(0.5)
             .setInteractive({ useHandCursor: true });
 
         const text = this.add.text(0, 0, label, {
             fontFamily: 'MagicFont', fontSize: '32px', color: '#ffffff', fontWeight: 'bold'
         }).setOrigin(0.5);
 
-        container.add([bg, text]);
-
+        this.container.add([bg, text]);
+        this.container.setScale(0.7);
         // Interactivity
-        bg.on('pointerover', () => bg.setFillStyle(0xcccccc));
-        bg.on('pointerout', () => bg.setFillStyle(0x332d1f));
+        bg.on('pointerover', () => bg.setTint(0xcccccc));
+        bg.on('pointerout', () => bg.setTint(0xffffffff));
         bg.on('pointerdown', () => {
             this.sound.play('sfx-coin'); // Play sound when clicked
             callback();

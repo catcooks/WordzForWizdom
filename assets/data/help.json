@@ -1,0 +1,34 @@
+{
+  "howToPlay": {
+    "title": "HOW TO PLAY",
+    "steps": [
+      "Type words using the letters on the wheel.",
+      "Submit words to cast spells at the enemy.",
+      "Longer words deal significantly more damage!",
+      "Defeat the enemy to progress to the next stage."
+    ]
+  },
+  "mechanics": {
+    "title": "BATTLE MECHANICS",
+    "entries": [
+      {
+        "name": "Ultimate Power",
+        "description": "Fill the circular gauge by landing attacks. At 100%, your next word deals 2x damage!"
+      },
+      {
+        "name": "Mana (MP)",
+        "description": "Used for special letter effects. It regenerates slowly over time."
+      },
+      {
+        "name": "Shields",
+        "description": "They absorb damage before your HP is touched."
+      }
+    ]
+  },
+  "elementalLetters": {
+    "title": "SPECIAL LETTERS",
+    "fire": "Deals more damage(Bonus damage when used as first letter).",
+    "heal": "Restores a small amount of HP based on word length.",
+    "shield": "Adds a temporary protection layer to your hearts."
+  }
+}

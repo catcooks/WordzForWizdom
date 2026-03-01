@@ -27,10 +27,10 @@ export default {
             key: 'bg-spring',
             args: ['assets/backgrounds/bg_spring_battleground.png']
         },
-        summer_bg: {
-            key: 'bg-summer',
-            args: ['assets/backgrounds/bg_summer_battleground.png']
-        },
+//        summer_bg: {
+//            key: 'bg-summer',
+//            args: ['assets/backgrounds/bg_summer_battleground.png']
+//        },
         fall_bg: {
             key: 'bg-fall',
             args: ['assets/backgrounds/bg_fall_battleground.png']
@@ -59,6 +59,10 @@ export default {
             key: 'btn-shuffle',
             args: ['assets/ui/btn/shuffle.png']
         },
+        startbtn: {
+            key: 'btn-start',
+            args: ['assets/ui/btn/button_start.png']
+        },
         longbtn: {
             key: 'btn-long',
             args: ['assets/ui/btn/long-btn.png']
@@ -70,6 +74,10 @@ export default {
         X: {
             key: 'X',
             args: ['assets/ui/btn/X.png']
+        },
+        paper: {
+            key: 'paper',
+            args: ['assets/ui/paper.png']
         },
 
 
@@ -138,6 +146,13 @@ export default {
             args: ['assets/ui/statbox.png', {
                 frameWidth: 256,
                 frameHeight: 256,
+            }]
+        },
+        buttons: {
+            key: 'button',
+            args: ['assets/ui/btn/buttons.png', {
+                frameWidth: 300,
+                frameHeight: 318,
             }]
         },
     },

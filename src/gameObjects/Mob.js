@@ -23,10 +23,10 @@ export default class Mob extends Phaser.GameObjects.Container {
     const heartOffset = (this.maxHp / 20) * (50 * 0.6);
     let X = (this.maxHp % 20 !== 0) ? 130 : 150;
     const dynamicX = (1070 + X) - heartOffset;
-    
+
     this.stats = new StatBox(scene, -this.x + dynamicX, -this.y + 50, this);
     this.stats.setScale(0.6);
-    
+
     this.add([this.sprite, this.stats]);
     scene.add.existing(this);
 
@@ -41,7 +41,7 @@ export default class Mob extends Phaser.GameObjects.Container {
 
   executeAttack() {
     if (this.hp <= 0) {
-      if(this.attackTimer) this.attackTimer.remove();
+      if (this.attackTimer) this.attackTimer.remove();
       return;
     }
 
@@ -70,6 +70,33 @@ export default class Mob extends Phaser.GameObjects.Container {
         });
       }
     });
+  }
+
+
+  // Inside Mob.js class
+  applyFreeze(duration) {
+    if (this.isFrozen) return; // Don't stack freezes if already frozen
+
+    this.isFrozen = true;
+
+    // Visual feedback: Tint the enemy blue
+    this.sprite.setTint(0x0099ff);
+
+    // If the enemy has an attack timer/event, pause it
+    if (this.attackTimer) this.attackTimer.paused = true;
+
+    // Set a timer to thaw out
+    this.scene.time.delayedCall(duration, () => {
+      this.isFrozen = false;
+      this.sprite.clearTint();
+
+      // Resume attacking
+      if (this.attackTimer) this.attackTimer.paused = false;
+
+      this.scene.showDamageText(this.x, this.y, "THAWED", "#ffffff");
+    });
+
+    this.scene.showDamageText(this.x, this.y, "FROZEN!", "#00ffff");
   }
 
   takeDamage(amount) {

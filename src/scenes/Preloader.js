@@ -45,6 +45,7 @@ export class Preloader extends Phaser.Scene {
         this.load.json('stageData', 'assets/data/stages.json');
         this.load.json('mobData', 'assets/data/mobs.json');  
         this.load.json('playerData', 'assets/data/players.json');
+        this.load.json('helpData', 'assets/data/help.json');
         for (let type in ASSETS) {
             for (let key in ASSETS[type]) {
                 let args = ASSETS[type][key].args.slice();
