@@ -5,7 +5,9 @@
       "Type words using the letters on the wheel.",
       "Submit words to cast spells at the enemy.",
       "Longer words deal significantly more damage!",
-      "Defeat the enemy to progress to the next stage."
+      "Defeat the enemy to progress to the next stage.",
+      "heal and shield can only be used as first letters.",
+      "shuffle, shuffles both the letters and effects."
     ]
   },
   "mechanics": {
@@ -27,8 +29,8 @@
   },
   "elementalLetters": {
     "title": "SPECIAL LETTERS",
-    "fire": "Deals more damage(Bonus damage when used as first letter).",
-    "heal": "Restores a small amount of HP based on word length.",
-    "shield": "Adds a temporary protection layer to your hearts."
+    "fire": " Deals more damage(Bonus damage when used as first letter).",
+    "heal": " Restores a small amount of HP based on word length.",
+    "shield": " Adds a temporary protection layer to your hearts."
   }
 }
