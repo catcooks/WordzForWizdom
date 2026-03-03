@@ -7,6 +7,7 @@ import { GameOver } from './scenes/GameOver.js';
 import { PlayerSelection } from './scenes/PlayerSelection.js';
 import { Settings } from './scenes/Settings.js';
 import { Help } from './scenes/Help.js';
+import { Credits } from './scenes/Credits.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -16,9 +17,7 @@ const config = {
     width: 1280,
     height: 720,
     scale: {
-        // This fits the game to the screen while maintaining aspect ratio
         mode: Phaser.Scale.FIT,
-        // This centers the game canvas vertically and horizontally
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     backgroundColor: '#000000',
@@ -39,6 +38,7 @@ const config = {
         PlayerSelection,
         Settings,
         Help,
+        Credits,
     ],
     scale: {
         mode: Phaser.Scale.FIT,

@@ -1,6 +1,6 @@
 import StatBox from './Statbox.js';
-
-export default class Player extends Phaser.GameObjects.Container {
+import Entity from './Entity.js';
+export default class Player extends Entity {
     constructor(scene, x, y, config) {
         super(scene, x, y);
         this.scene = scene;
@@ -51,31 +51,12 @@ export default class Player extends Phaser.GameObjects.Container {
 
         scene.add.existing(this);
     }
-
-
-
-
-
-    // ... (Keep all your existing methods: onHealed, takeDamage, fireSpell, etc.)
-    // Just ensure they reference 'this.hp' and 'this.Mp' as you already have them!
     updateShieldVisuals() {
         this.stats.updateHealth();
     }
     onOutOfMana() {
         this.shakeManaBar();
     }
-    takeDamage(amount) {
-        if (this.hp <= 0) return;
-
-        this.hp = Phaser.Math.Clamp(this.hp - amount, 0, this.maxHp);
-        this.stats.updateHealth();
-
-        if (amount > 0) {
-            this.scene.cameras.main.shake(200, 0.01);
-            this.flashRed();
-        }
-    }
-
     fireSpell(isCritical, buffs, finalDamage, targetEnemy, onHitCallback) {
         let color = isCritical ? 0xffcc00 : 0x00ffff;
         if (buffs.includes('fire')) color = 0xff4444;
@@ -258,15 +239,5 @@ export default class Player extends Phaser.GameObjects.Container {
             this.sprite.setFrame(0);
             this.scene.time.delayedCall(300, () => this.sprite.setFrame(1));
         }
-    }
-
-    flashRed() {
-        this.scene.tweens.add({
-            targets: this.sprite,
-            tint: 0xff0000,
-            duration: 100,
-            yoyo: true,
-            onComplete: () => this.sprite.clearTint()
-        });
     }
 }

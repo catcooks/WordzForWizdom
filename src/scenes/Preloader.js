@@ -6,7 +6,7 @@ export class Preloader extends Phaser.Scene {
     }
 
     init() {
-        // Drawing the loading screen UI (This is correct here)
+        
         this.add.image(this.scale.width / 2, this.scale.height / 2, 'bg-loading');
 
         this.loadingLabel = this.add.text(this.scale.width / 2, this.scale.height / 2 - 50, 'PREPARING SPELLS...', {
@@ -40,6 +40,7 @@ export class Preloader extends Phaser.Scene {
     }
 
     preload() {
+        this.load.audio('Time-for-adventure', 'assets/audio/bgm/time_for_adventure.mp3');
         this.load.json('dictionary', 'assets/data/dictionary.json');
         this.load.json('words', 'assets/data/MasterWord.json');
         this.load.json('stageData', 'assets/data/stages.json');

@@ -1,6 +1,6 @@
 import LetterWheel from '../gameObjects/LetterWheel.js';
 import Player from '../gameObjects/Player.js';
-import Mob from '../gameObjects/Mob.js'; // Renamed from Goblin
+import Mob from '../gameObjects/Mob.js';
 import Shuffle from '../gameObjects/Shuffle.js';
 
 export class Game extends Phaser.Scene {
@@ -9,10 +9,10 @@ export class Game extends Phaser.Scene {
     }
 
     init(data) {
-        // Receives level number (e.g., 1), defaults to 1
+
         this.currentLevelNum = data.level || 1;
         this.playerType = data.playerType || 'Mage';
-        // Format key to match your JSON (Stage01, Stage02, etc.)
+
         this.stageKey = `Stage${this.currentLevelNum.toString().padStart(2, '0')}`;
 
         const allStages = this.cache.json.get('stageData');
@@ -24,21 +24,19 @@ export class Game extends Phaser.Scene {
     }
 
     create() {
-        // 1. SETUP BACKGROUND FIRST (The bottom layer)
+
         this.add.image(this.scale.width / 2, this.scale.height / 2, this.stageData.Background);
 
-        // 2. SPAWN PLAYER (Now drawn on top of background)
-        // In Game.js create()
         const playerLibrary = this.cache.json.get('playerData');
-        const playerConfig = playerLibrary[this.playerType]; // Uses 'Mage' from selection
+        const playerConfig = playerLibrary[this.playerType];
 
         this.player = new Player(this, 260, this.scale.height - 300, playerConfig);
 
-        // 3. Setup Entities (Mob)
+
         const mobLibrary = this.cache.json.get('mobData');
         const mobConfig = mobLibrary[this.stageData.Enemy];
         this.mob = new Mob(this, 900, this.scale.height - 500, mobConfig);
-        // 4. Setup Wheel and UI
+
         this.letterWheel = new LetterWheel(this, this.scale.width / 2, this.scale.height - 200);
         this.letterWheel.setScale(0.7);
 
@@ -46,23 +44,41 @@ export class Game extends Phaser.Scene {
         const offsetY = this.letterWheel.y - this.player.y;
         this.shuffleBtn = new Shuffle(this, this.letterWheel.x, this.letterWheel.y, this.letterWheel);
 
-        // Align Player Power Bar to the Wheel position as per your design
         this.player.powerBarBg.setPosition(offsetX, offsetY);
         this.player.powerBar.setPosition(offsetX, offsetY);
         this.player.powerBar.setScale(0.4);
         this.player.powerBarBg.setScale(0.4);
-
+        this.createButton(this.scale.width / 2, 30, 1, 0.2, () => {
+            this.scene.pause();
+            this.scene.launch('Settings', { parentKey: this.scene.key });
+        });
         this.setupInputs();
+
 
         console.log(`${this.stageKey} initialized with ${this.stageData.Enemy}`);
     }
 
     setupInputs() {
-        // Cheat keys and Controls
+
         this.input.keyboard.on('keydown-P', () => this.player.updatePower(100));
         this.input.keyboard.on('keydown-H', () => this.player.takeDamage(-90));
         this.input.keyboard.on('keydown-S', () => this.shuffleBtn.executeShuffle());
         this.input.keyboard.on('keydown-A', () => this.mob.takeDamage(90));
+    }
+    createButton(x, y, frame, scale, callback) {
+        const btnContainer = this.add.container(x, y);
+        const btn = this.add.sprite(0, 0, 'button', frame)
+            .setScale(scale)
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true });
+        btn.setName('icon');
+        btnContainer.add(btn);
+        btn.on('pointerover', () => btn.setTint(0xcccccc));
+        btn.on('pointerout', () => btn.setTint(0xffffffff));
+        btn.on('pointerdown', () => {
+            this.sound.play('sfx-coin');
+            callback();
+        });
     }
 
     handleAttack(word, isTarget, letterObjects) {
@@ -72,44 +88,43 @@ export class Game extends Phaser.Scene {
         let shouldSkipAttack = false;
         const length = word.length;
 
-        // PASS 1: Get the Multiplier first
+
         let totalMultiplier = 1;
 
         letterObjects.forEach(l => {
             if (l.effectType === 'fire') totalMultiplier *= 1.5;
         });
 
-        // PASS 2: Collect all RAW values
         letterObjects.forEach((letter, i) => {
             if (typeof letter.execute === 'function') {
                 const result = letter.execute(this.player, this.mob, i, length);
 
-                // Keep track of effects and criticals
+
                 if (result.isCritical) isTarget = true;
                 if (result.cancelAttack) shouldSkipAttack = true;
                 if (result.isUsed) effectsFound.push(letter.effectType);
 
-                // Add the RAW damage from the special letter
+
                 rawBaseDamage += result.damage;
 
-                // Add the RAW freeze power
+
                 if (result.freezePower) {
                     totalFreeze += (result.freezePower * Math.max(1, Math.round(length / 4))) * totalMultiplier;
                 }
             } else {
-                // Add RAW damage for normal letters (5)
+
                 rawBaseDamage += 5;
             }
         });
         let finalDamage = Math.round(rawBaseDamage * totalMultiplier);
 
-        if (shouldSkipAttack) {    
+        if (shouldSkipAttack) {
             if (totalFreeze > 0) this.mob.applyFreeze(totalFreeze);
-        
-        } else {    
+
+        } else {
             const actualDamageDealt = this.player.fire(finalDamage, isTarget);
-    
-            this.player.fireSpell(isTarget, effectsFound, actualDamageDealt, this.mob, () => {        
+
+            this.player.fireSpell(isTarget, effectsFound, actualDamageDealt, this.mob, () => {
                 if (totalFreeze > 0) {
                     this.mob.applyFreeze(totalFreeze);
                 }
@@ -126,7 +141,6 @@ export class Game extends Phaser.Scene {
             this.showDamageText(target.x, target.y - 100, "CRITICAL!", "#ffff00");
         }
 
-        // Shield logic
         if (target.shield && target.shield > 0) {
             if (damage >= target.shield) {
                 damage -= target.shield;
@@ -141,7 +155,7 @@ export class Game extends Phaser.Scene {
         target.hp = Math.max(0, target.hp - damage);
         if (target.stats) target.stats.updateHealth();
 
-        // Visuals
+
         const color = (damage === 0) ? "#00ffff" : "#ff0000";
         const text = (damage === 0) ? "BLOCKED" : `-${damage}`;
         this.showDamageText(target.x, target.y, text, color);
@@ -153,21 +167,19 @@ export class Game extends Phaser.Scene {
             duration: 100,
             yoyo: true,
             onComplete: () => {
-                // INSTEAD of target.sprite.clearTint();
-                // Check if the enemy is still frozen!
                 if (target.isFrozen) {
-                    target.sprite.setTint(0x00ffff); // Keep them Blue if frozen
+                    target.sprite.setTint(0x00ffff);
                 } else {
-                    target.sprite.clearTint(); // Otherwise clear it
+                    target.sprite.clearTint();
                 }
             }
         });
 
-        // Check for Death
+
         if (target.hp <= 0) {
             if (typeof target.die === 'function') target.die();
 
-            // If the Mob died, trigger next stage after a delay
+
             if (target === this.mob) {
                 this.time.delayedCall(2000, () => this.nextStage());
             }
@@ -177,21 +189,18 @@ export class Game extends Phaser.Scene {
             this.triggerGameOver();
         }
     }
-
     nextStage() {
         const nextLevel = this.currentLevelNum + 1;
         const nextKey = `Stage${nextLevel.toString().padStart(2, '0')}`;
         const allStages = this.cache.json.get('stageData');
-
         if (allStages[nextKey]) {
-            // Only restart once, passing both the new level and the current player type
             this.scene.restart({
                 level: nextLevel,
                 playerType: this.playerType
             });
         } else {
             console.log("ALL STAGES CLEARED!");
-            // this.scene.start('VictoryScreen');
+            this.scene.start('Credits');
         }
     }
 

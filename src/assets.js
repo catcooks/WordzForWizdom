@@ -12,6 +12,10 @@ export default {
         power: {
             key: 'sfx-powerup',
             args: ['assets/audio/sfx/power_up.wav']
+        },
+        backgroundMusic: {
+            key: 'Time-for-adventure',
+            args: ['assets/audio/bgm/time_for_adventure.mp3']
         }
     },
     'image': {
@@ -27,10 +31,6 @@ export default {
             key: 'bg-spring',
             args: ['assets/backgrounds/bg_spring_battleground.png']
         },
-//        summer_bg: {
-//            key: 'bg-summer',
-//            args: ['assets/backgrounds/bg_summer_battleground.png']
-//        },
         fall_bg: {
             key: 'bg-fall',
             args: ['assets/backgrounds/bg_fall_battleground.png']
@@ -73,7 +73,7 @@ export default {
         },
         X: {
             key: 'X',
-            args: ['assets/ui/btn/X.png']
+            args: ['assets/ui/btn/xpic.png']
         },
         paper: {
             key: 'paper',

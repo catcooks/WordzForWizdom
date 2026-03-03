@@ -1,37 +1,38 @@
+import Entity from './Entity.js';
 import StatBox from './Statbox.js';
 
-export default class Mob extends Phaser.GameObjects.Container {
-
+export default class Mob extends Entity {
   constructor(scene, x, y, config) {
-    super(scene, x, y);
-    this.scene = scene;
-    this.maxHp = config.maxHp || 100;
-    this.hp = this.maxHp;
+    // 1. Call the Entity constructor
+    super(scene, x, y, config.texture, config.maxHp || 100);
+
+    // 2. Mob-specific data
     this.attackDamage = config.attackDamage || 10;
     this.attackSpeed = config.attackSpeed || 3000;
     this.isBoss = config.isBoss || false;
-
-    this.sprite = scene.add.sprite(0, 0, config.texture);
     this.sprite.setScale(config.scale || 0.5);
     this.sprite.setFlipX(true);
 
+    // 3. Setup Mob-specific UI
     const heartOffset = (this.maxHp / 20) * (50 * 0.6);
     let X = (this.maxHp % 20 !== 0) ? 130 : 150;
     const dynamicX = (1070 + X) - heartOffset;
-
     this.stats = new StatBox(scene, -this.x + dynamicX, -this.y + 50, this);
     this.stats.setScale(0.6);
+    this.add(this.stats);
 
-    this.add([this.sprite, this.stats]);
-    scene.add.existing(this);
-
-  
-    this.attackTimer = this.scene.time.addEvent({
+    // 4. Setup Attack Timer (Entity will pause this automatically via 'this.timer')
+    this.timer = this.scene.time.addEvent({
       delay: this.attackSpeed,
       callback: this.executeAttack,
       callbackScope: this,
       loop: true
     });
+  }
+
+  // Tell Entity how to update the Mob's specific HP bar
+  updateUI() {
+    if (this.stats) this.stats.updateHealth(this.hp);
   }
 
   executeAttack() {
@@ -65,70 +66,17 @@ export default class Mob extends Phaser.GameObjects.Container {
     });
   }
 
-  applyFreeze(duration) {
-    if (this.isFrozen) return;
-
-    this.isFrozen = true;
-
-  
-    this.sprite.setTint(0x0099ff);
-
-  
-    if (this.attackTimer) this.attackTimer.paused = true;
-
-    this.scene.time.delayedCall(duration, () => {
-    
-      if (!this.scene || !this.active) return;
-
-      this.isFrozen = false;
-      this.sprite.clearTint();
-      if (this.attackTimer) this.attackTimer.paused = false;
-
-      this.scene.showDamageText(this.x, this.y, "THAWED", "#ffffff");
-    });
-
-    this.scene.showDamageText(this.x, this.y, "FROZEN!", "#00ffff");
-  }
-
-  takeDamage(amount) {
-    this.hp = Phaser.Math.Clamp(this.hp - amount, 0, this.maxHp);
-    this.stats.updateHealth(this.hp);
-    this.flashRed();
-
-    if (this.hp <= 0) {
-      this.die();
-    }
-  }
-
-  flashRed() {
-    this.scene.tweens.add({
-      targets: this.sprite,
-      tint: 0xff0000,
-      duration: 100,
-      yoyo: true,
-      onComplete: () => this.sprite.clearTint()
-    });
-  }
-
-  preDestroy() {
-    if (this.attackTimer) this.attackTimer.remove();
-  }
-
+  // Override die() because mobs have a unique "tip over" animation
   die() {
-    if (this.attackTimer) this.attackTimer.remove();
-
+    if (this.timer) this.timer.remove();
     this.scene.tweens.add({
       targets: this.sprite,
       y: 100,
       alpha: 0,
       angle: this.isBoss ? 0 : 90,
       duration: 800,
-      ease: 'Power2',
-      onComplete: () => {
-        this.destroy();
-      }
+      onComplete: () => this.destroy()
     });
-
     if (this.stats) this.stats.setVisible(false);
   }
 }

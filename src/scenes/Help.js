@@ -5,19 +5,23 @@ export class Help extends Phaser.Scene {
     this.contentPadding = 80;
   }
 
-  create() {
+  create(data) {
+    const parentKey = data.parentKey;
     const { width, height } = this.scale;
     this.helpData = this.cache.json.get('helpData');
 
-    // Dim background
+    
     this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
 
     this.helpContainer = this.add.container(width / 2, height / 2);
     this.helpBg = this.add.image(0, 0, 'paper').setOrigin(0.5);
     this.helpBg.setDisplaySize(width * 0.8, height * 0.9);
 
-    // Fixed UI elements
+    
     const closeBtn = this.createButton(this.helpBg.displayWidth / 2 - 100, -this.helpBg.displayHeight / 2 + 100, 6, 0.2, () => {
+      if (parentKey) {
+        this.scene.resume(parentKey);
+      }
       this.scene.stop();
     });
 
@@ -29,11 +33,11 @@ export class Help extends Phaser.Scene {
     this.prevBtn = this.createButton(-100, this.helpBg.displayHeight / 2 - 100, 2, 0.2, () => {
       this.currentPage--;
       this.createPage();
-    }, true); // Pass 'true' here to flip it
+    }, true);
 
     this.helpContainer.add([this.helpBg, closeBtn, this.nextBtn, this.prevBtn]);
 
-    // Content group to clear easily
+    
     this.pageContent = this.add.container(0, 0);
     this.helpContainer.add(this.pageContent);
 
@@ -46,9 +50,9 @@ export class Help extends Phaser.Scene {
     const contentWidth = this.helpBg.displayWidth - 120;
     let currentY = -this.helpBg.displayHeight / 2 + this.contentPadding;
 
-    // Control button visibility
+    
     this.prevBtn.setVisible(this.currentPage > 0);
-    this.nextBtn.setVisible(this.currentPage < 2); // 0: HowTo, 1: Letters, 2: Mechanics
+    this.nextBtn.setVisible(this.currentPage < 2); 
 
     switch (this.currentPage) {
       case 0:
@@ -108,7 +112,7 @@ export class Help extends Phaser.Scene {
     this.pageContent.add(title);
   }
 
-createButton(x, y, frame, scale, callback, flipX = false) {
+  createButton(x, y, frame, scale, callback, flipX = false) {
     const btnContainer = this.add.container(x, y);
     const btn = this.add.sprite(0, 0, 'button', frame)
       .setScale(scale)
@@ -124,5 +128,5 @@ createButton(x, y, frame, scale, callback, flipX = false) {
       callback();
     });
     return btnContainer;
-}
+  }
 }

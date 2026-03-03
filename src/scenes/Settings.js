@@ -3,7 +3,8 @@ export class Settings extends Phaser.Scene {
     super('Settings');
   }
 
-  create() {
+  create(data) {
+    const parentKey = data.parentKey;
     const { width, height } = this.scale;
     const offsetX = width / 2;
     const offsetY = height / 2;
@@ -11,7 +12,10 @@ export class Settings extends Phaser.Scene {
     this.rect = this.add.rectangle(offsetX, offsetY, width, height, 0x000000, 0.5);
     this.settingsContainer = this.add.container(offsetX, offsetY);
     const settingsBg = this.add.image(0, 0, 'paper').setOrigin(0.5);
-    const closeBtn = this.createButton(370, -230, 6, btnScale, () => {
+    const closeBtn = this.createButton(370, -230, 6, 0.2, () => {
+      if (parentKey) {
+        this.scene.resume(parentKey);
+      }
       this.scene.stop();
     });
     const fullScreen = this.createSettings(-250, -200, 12, btnScale, 'Full Screen', () => {
@@ -21,7 +25,7 @@ export class Settings extends Phaser.Scene {
         this.scale.stopFullscreen();
       }
     });
-    // 1. Track the state (true for on, false for off)
+
     let isMuted = this.sound.mute;
 
     const sound = this.createSettings(-250, -140, isMuted ? 13 : 10, btnScale, 'sound', () => {
@@ -30,12 +34,14 @@ export class Settings extends Phaser.Scene {
       const icon = sound.list[1].getByName('icon');
       icon.setFrame(isMuted ? 13 : 10);
     });
-    const share = this.createSettings(-250, -80, 9, btnScale, ' share', () => {
+
+    const share = this.createSettings(-250, -80, 9, btnScale, 'share', () => {
       const gameUrl = 'https://catcooks.github.io/WordzForWizdom/';
       const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`;
 
       window.open(shareUrl, '_blank');
     });
+
     this.settingsContainer.add([
       settingsBg,
       closeBtn,

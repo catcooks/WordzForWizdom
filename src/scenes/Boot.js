@@ -5,7 +5,6 @@ export class Boot extends Phaser.Scene {
     }
 
     preload() {
-        // Load only what we need for the loading screen itself
         this.load.image('bg-loading', 'assets/backgrounds/bg_loading.png');
     }
 

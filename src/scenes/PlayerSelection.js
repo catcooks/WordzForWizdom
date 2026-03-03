@@ -27,7 +27,7 @@ export class PlayerSelection extends Phaser.Scene {
     });
     mageBtn.on('pointerover', () => {
       mageBtn.setTint(0x00ff00);
-      this.mageContainer.setScale(0.65); // Make the whole container pop!
+      this.mageContainer.setScale(0.65); 
     });
 
     mageBtn.on('pointerout', () => {

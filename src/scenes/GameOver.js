@@ -7,8 +7,8 @@ export class GameOver extends Phaser.Scene {
         const { width, height } = this.scale;
         this.container = this.add.container(width / 2, height / 2);
         this.tryAgainBtn = this.add.container(0, 115);
-
-        // 2. Add your elements 
+        this.rect = this.add.rectangle(0,0, width, height, 0x000000, 0.5);
+        
         this.btnborder = this.add.image(0, 0, 'btn-long').setOrigin(0.5).setScale(0.5);
         const TryAgain = this.add.text(0, 0, 'Try again', {
             fontSize: '24px',
@@ -19,25 +19,25 @@ export class GameOver extends Phaser.Scene {
         }).setOrigin(0.5);
         this.tryAgainBtn.add([this.btnborder, TryAgain]);
 
-        // 3. DEFINE THE HIT AREA
+        
         this.tryAgainBtn.setInteractive(
             new Phaser.Geom.Rectangle(-this.btnborder.displayHeight * 2, -this.btnborder.displayHeight / 2, this.btnborder.displayWidth, this.btnborder.displayHeight),
             Phaser.Geom.Rectangle.Contains
         );
 
-        // --- HOVER EFFECTS ---
+        
         this.tryAgainBtn.on('pointerover', () => {
             this.btnborder.setTint(0xeeeeee);
-            this.tryAgainBtn.setScale(1.1); // Scale the whole container up
+            this.tryAgainBtn.setScale(1.1); 
         });
 
         this.tryAgainBtn.on('pointerout', () => {
             this.btnborder.clearTint();
-            this.tryAgainBtn.setScale(1); // Return to normal scale
+            this.tryAgainBtn.setScale(1); 
         });
 
         this.tryAgainBtn.on('pointerdown', () => {
-            this.tryAgainBtn.setScale(0.9); // Squish the whole container
+            this.tryAgainBtn.setScale(0.9); 
             this.triggerTryAgain();
         });
 
@@ -65,16 +65,16 @@ export class GameOver extends Phaser.Scene {
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        // Add everything to main container
+        
 
-        this.container.add([this.menuBg, this.X, this.tryAgainBtn, title]).setScale(0);
+        this.container.add([this.rect, this.menuBg, this.X, this.tryAgainBtn, title]).setScale(0);
         this.tweens.add({
             targets: this.X,
-            scale: 0.6,          // Scale up from 0.5 to 0.6
-            duration: 800,       // Time in milliseconds (0.8 seconds)
-            yoyo: true,          // Scale back down to 0.5 automatically
-            repeat: -1,          // Repeat infinitely
-            ease: 'Sine.easeInOut' // Smooth transition at the start and end
+            scale: 0.6,          
+            duration: 800,       
+            yoyo: true,          
+            repeat: -1,          
+            ease: 'Sine.easeInOut' 
         });
         this.tweens.add({
             targets: this.container,
@@ -85,7 +85,7 @@ export class GameOver extends Phaser.Scene {
     }
 
     triggerTryAgain() {
-        // Use start instead of launch to reset the Game scene completely
+        
         this.scene.stop('GameOver');
         this.scene.start('Game');
     }
