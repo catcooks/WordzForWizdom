@@ -9,7 +9,7 @@
     },
     "ogre": {
         "texture": "enemy-ogre",
-        "maxHp": 500,
+        "maxHp": 200,
         "attackDamage": 30,
         "attackSpeed": 2000,
         "scale": 0.4,
