@@ -10,8 +10,8 @@
     "ogre": {
         "texture": "enemy-ogre",
         "maxHp": 200,
-        "attackDamage": 30,
-        "attackSpeed": 2000,
+        "attackDamage": 20,
+        "attackSpeed": 4000,
         "scale": 0.4,
         "isBoss": true
     }

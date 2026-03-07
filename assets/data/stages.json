@@ -3,11 +3,23 @@
     "Background": "bg-spring",
     "Enemy": "goblin",
     "Player": "Mage",
-    "bgm": "" 
+    "bgm": ""
   },
   "Stage02": {
     "Background": "bg-fall",
     "Enemy": "ogre",
+    "Player": "Mage",
+    "bgm": ""
+  },
+  "Stage03": {
+    "Background": "bg-fall",
+    "Enemy": "ogreMage",
+    "Player": "Mage",
+    "bgm": ""
+  },
+  "Stage04": {
+    "Background": "bg-fall",
+    "Enemy": "ogreMage",
     "Player": "Mage",
     "bgm": ""
   }

@@ -1,0 +1,12 @@
+{
+  "ogreMage": {
+    "texture": "ogreMage", 
+    "maxHp": 200,
+    "attackDamage": 25,
+    "attackSpeed": 3000,
+    "scale": 0.25,
+    "maxShield": 50,
+    "maxPhases": 2,
+    "isBoss": true
+  }
+}
