@@ -1,5 +1,5 @@
 export default class StatBox extends Phaser.GameObjects.Container {
-    constructor(scene, x, y, owner) {
+    constructor(scene, x, y, owner, shieldOffset = { x: 0, y: 160 }) {
         super(scene, x, y);
         this.scene = scene;
         this.owner = owner;
@@ -18,9 +18,9 @@ export default class StatBox extends Phaser.GameObjects.Container {
         const hpBoardWidth = this.createHpBoard();
 
 
-        if (this.owner.maxShield !== undefined) {
-            // 0 = X offset, 110 = Y offset (below HP)
-            this.createShieldBoard(0, 160, 0.8);
+        if (this.owner.maxShield !== undefined && this.owner.maxShield > 0) {
+            // Use the values passed from Mob.js or Player.js
+            this.createShieldBoard(shieldOffset.x, shieldOffset.y, 0.8);
         }
 
         if (this.owner.maxMp !== undefined) {
@@ -173,7 +173,7 @@ export default class StatBox extends Phaser.GameObjects.Container {
         // Shield Icons
         for (let i = 0; i < totalShieldIcons; i++) {
             // We multiply the offset (50) by masterScale so they stay centered
-            const x = startXOffset + step + (i * iconGap)-10;
+            const x = startXOffset + step + (i * iconGap) - 10;
             const y = yOffset;
 
             const shieldIcon = this.scene.add.sprite(x, y, 'icon-shield', 1)

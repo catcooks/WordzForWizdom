@@ -3,28 +3,43 @@ import StatBox from './Statbox.js';
 
 export default class Mob extends Entity {
   constructor(scene, x, y, config) {
-    // 1. Call the Entity constructor
     super(scene, x, y, config.texture, config.maxHp || 100);
 
-    // 2. Mob-specific data
+    // --- IMPORTANT: DEFINE SHIELD BEFORE CREATING STATBOX ---
+    this.maxShield = config.maxShield || 0;
+    this.shield = this.maxShield;
+    // -------------------------------------------------------
+
     this.attackDamage = config.attackDamage || 10;
     this.attackSpeed = config.attackSpeed || 3000;
     this.isBoss = config.isBoss || false;
     this.sprite.setScale(config.scale || 0.5);
     this.sprite.setFlipX(true);
 
-    // 3. Setup Mob-specific UI
+    // Now when StatBox is created, it will see this.owner.maxShield exists!
     const heartOffset = (this.maxHp / 20) * (50 * 0.6);
     let X = (this.maxHp % 20 !== 0) ? 130 : 150;
     const dynamicX = (1070 + X) - heartOffset;
-    this.stats = new StatBox(scene, -this.x + dynamicX, -this.y + 50, this);
+    const heartX = -this.x + dynamicX;
+
+    const shieldOffset = (310 - ((this.maxShield / 10) * 40) + 40) + (this.maxHp - 20);
+    const shieldDynamic = heartX - (shieldOffset);
+
+    const sX = -shieldDynamic
+    const sY = 160;
+    this.stats = new StatBox(
+      scene,
+      heartX,
+      -this.y + 50,
+      this,
+      { x: sX, y: sY }
+    );
     this.stats.setScale(0.6);
     this.add(this.stats);
 
-    // 4. Setup Attack Timer (Entity will pause this automatically via 'this.timer')
     this.timer = this.scene.time.addEvent({
       delay: this.attackSpeed,
-      callback: this.executeAttack,
+      callback: () => this.executeAttack(0, 1),
       callbackScope: this,
       loop: true
     });
@@ -32,10 +47,14 @@ export default class Mob extends Entity {
 
   // Tell Entity how to update the Mob's specific HP bar
   updateUI() {
-    if (this.stats) this.stats.updateHealth(this.hp);
+    if (this.stats) {
+      this.stats.updateHealth(this.hp);
+      // Add this line to send shield data to the UI!
+      if (this.stats.updateShield) this.stats.updateShield(this.shield);
+    }
   }
 
-  executeAttack() {
+  executeAttack(idle, atk) {
     if (this.hp <= 0) {
       if (this.attackTimer) this.attackTimer.remove();
       return;
@@ -46,7 +65,7 @@ export default class Mob extends Entity {
       duration: 200,
       yoyo: true,
       onComplete: () => {
-        this.sprite.setFrame(1);
+        this.sprite.setFrame(atk);
         this.scene.tweens.add({
           targets: this.sprite,
           x: this.isBoss ? -80 : -40,
@@ -59,8 +78,8 @@ export default class Mob extends Entity {
             }
           },
           onComplete: () => {
-            this.sprite.setFrame(0);
-          }
+            this.sprite.setFrame(idle);
+          } 
         });
       }
     });

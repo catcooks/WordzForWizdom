@@ -120,6 +120,13 @@ export default {
                 frameHeight: 688,
             }]
         },
+        ogreMage: {
+            key: 'ogreMage',
+            args: ['assets/sprites/npc/ogre_mage_front.png', {
+                frameWidth: 680,
+                frameHeight: 1024, 
+            }]
+        },
         iconMana: {
             key: 'icon-mana',
             args: ['assets/ui/icon_mana.png', {
@@ -155,6 +162,7 @@ export default {
                 frameHeight: 318,
             }]
         },
+        
     },
     'font': {
         gameFont: {

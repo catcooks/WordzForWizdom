@@ -12,12 +12,36 @@ export default class Entity extends Phaser.GameObjects.Container {
         scene.add.existing(this);
     }
 
+    // Entity.js
+    // Entity.js
     takeDamage(amount) {
+        // 1. Check if we have a shield active
+        if (this.shield && this.shield > 0) {
+            this.shield -= amount;
+
+            if (this.shield < 0) {
+                const overflow = Math.abs(this.shield);
+                this.shield = 0;
+                // Apply leftover to HP
+                this.processHpDamage(overflow);
+            } else {
+                // Shield absorbed all; just flash red
+                this.flashRed();
+            }
+        } else {
+            // 2. No shield, go straight to HP
+            this.processHpDamage(amount);
+        }
+
+        // 3. Always update visuals
+        if (this.stats) this.stats.updateHealth();
+        if (this.updateUI) this.updateUI();
+    }
+
+    // Internal helper so we don't repeat the HP logic
+    processHpDamage(amount) {
         this.hp = Phaser.Math.Clamp(this.hp - amount, 0, this.maxHp);
         this.flashRed();
-        
-        // This is where Mob or Player will update their specific bars
-        if (this.updateUI) this.updateUI();
 
         if (this.hp <= 0) {
             this.die();

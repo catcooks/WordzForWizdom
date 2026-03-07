@@ -1,3 +1,4 @@
+import UIHelper from "../utils/UIHelper.js";
 export class Credits extends Phaser.Scene {
   constructor() {
     super('Credits');
@@ -7,7 +8,7 @@ export class Credits extends Phaser.Scene {
     const { width, height } = this.scale;
 
     // 1. Background (Reuse your magic paper or a dark scroll)
-    this.add.rectangle(width / 2, height / 2, width, height, 0x000000);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
 
     const paper = this.add.image(width / 2, height / 2, 'paper');
     paper.setDisplaySize(width * 0.8, height * 0.9);
@@ -61,9 +62,8 @@ export class Credits extends Phaser.Scene {
       }
     });
 
-    this.createButton((width/2)+400, (height/2)-220, 6, 0.2, () => {
-      this.scene.resume('Start');
-      this.scene.stop();
+    UIHelper.createButton(this, (width / 2) + 400, (height / 2) - 220, 6, 0.2, () => {
+      this.scene.start('Start'); // Fixed the lowercase 's' in start!
     });
   }
 
@@ -77,20 +77,5 @@ export class Credits extends Phaser.Scene {
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => this.scene.start('Start'));
-  }
-  createButton(x, y, frame, scale, callback) {
-    const btnContainer = this.add.container(x, y);
-    const btn = this.add.sprite(0, 0, 'button', frame)
-      .setScale(scale)
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
-    btn.setName('icon');
-    btnContainer.add(btn);
-    btn.on('pointerover', () => btn.setTint(0xcccccc));
-    btn.on('pointerout', () => btn.setTint(0xffffffff));
-    btn.on('pointerdown', () => {
-      this.sound.play('sfx-coin');
-      callback();
-    });
   }
 }

@@ -1,3 +1,4 @@
+import UIHelper from "../utils/UIHelper.js"; // Don't forget the .js!
 export class Help extends Phaser.Scene {
   constructor() {
     super('Help');
@@ -5,39 +6,34 @@ export class Help extends Phaser.Scene {
     this.contentPadding = 80;
   }
 
-  create(data) {
+create(data) {
     const parentKey = data.parentKey;
     const { width, height } = this.scale;
     this.helpData = this.cache.json.get('helpData');
 
-    
     this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
 
     this.helpContainer = this.add.container(width / 2, height / 2);
     this.helpBg = this.add.image(0, 0, 'paper').setOrigin(0.5);
     this.helpBg.setDisplaySize(width * 0.8, height * 0.9);
 
-    
-    const closeBtn = this.createButton(this.helpBg.displayWidth / 2 - 100, -this.helpBg.displayHeight / 2 + 100, 6, 0.2, () => {
-      if (parentKey) {
-        this.scene.resume(parentKey);
-      }
+    // Using UIHelper now! 
+    const closeBtn = UIHelper.createButton(this, this.helpBg.displayWidth / 2 - 100, -this.helpBg.displayHeight / 2 + 100, 6, 0.2, () => {
+      if (parentKey) this.scene.resume(parentKey);
       this.scene.stop();
     });
 
-    this.nextBtn = this.createButton(100, this.helpBg.displayHeight / 2 - 100, 2, 0.2, () => {
+    this.nextBtn = UIHelper.createButton(this, 100, this.helpBg.displayHeight / 2 - 100, 2, 0.2, () => {
       this.currentPage++;
       this.createPage();
     });
 
-    this.prevBtn = this.createButton(-100, this.helpBg.displayHeight / 2 - 100, 2, 0.2, () => {
+    this.prevBtn = UIHelper.createButton(this, -100, this.helpBg.displayHeight / 2 - 100, 2, 0.2, () => {
       this.currentPage--;
       this.createPage();
-    }, true);
+    }, true); // The 'true' flips the arrow!
 
     this.helpContainer.add([this.helpBg, closeBtn, this.nextBtn, this.prevBtn]);
-
-    
     this.pageContent = this.add.container(0, 0);
     this.helpContainer.add(this.pageContent);
 
