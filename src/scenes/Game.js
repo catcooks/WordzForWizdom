@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import LetterWheel from '../gameObjects/LetterWheel.js';
 import Player from '../gameObjects/Player.js';
 import Mob from '../gameObjects/Mob.js';
@@ -238,4 +239,197 @@ export class Game extends Phaser.Scene {
             onComplete: () => text.destroy()
         });
     }
+=======
+import LetterWheel from '../gameObjects/mechanics/LetterWheel.js';
+import Player from '../gameObjects/actors/Player.js';
+import Mob from '../gameObjects/actors/Mob.js';
+import Shuffle from '../gameObjects/mechanics/Shuffle.js';
+import CoolDown from '../gameObjects/mechanics/WordCooldown.js';
+import OgreMage from '../gameObjects/actors/OgreMage.js';
+import UIHelper from '../utils/UIHelper.js';
+
+export class Game extends Phaser.Scene {
+    constructor() {
+        super('Game');
+    }
+
+    // --- 1. CONFIGURATION ---
+    init(data) {
+        this.currentLevelNum = data.level || 1;
+        this.playerType = data.playerType || 'Mage';
+        this.stageKey = `Stage${this.currentLevelNum.toString().padStart(2, '0')}`;
+
+        const allStages = this.cache.json.get('stageData');
+        this.stageData = allStages[this.stageKey];
+
+        if (!this.stageData) {
+            console.error(`Data for ${this.stageKey} not found!`);
+        }
+    }
+
+    // --- 2. THE INDEX (Create) ---
+    create() {
+        this.initBackground();
+        this.initEnemy();
+        this.initPlayer();
+        this.initMechanics();
+        this.initUI();
+
+        console.log(`${this.stageKey} ready with ${this.stageData.Enemy}`);
+    }
+
+    // --- 3. INITIALIZATION METHODS ---
+    initBackground() {
+        const bg = this.add.image(this.scale.width / 2, this.scale.height / 2, this.stageData.Background);
+        bg.setDisplaySize(this.scale.width, this.scale.height);
+    }
+
+    initEnemy() {
+        const mobLibrary = this.cache.json.get('mobData');
+        const bossLibrary = this.cache.json.get('bossData');
+        const enemyKey = this.stageData.Enemy;
+        const { width, height } = this.scale;
+
+        if (bossLibrary && bossLibrary[enemyKey]) {
+            this.mob = new OgreMage(this, 900, height - 450, bossLibrary[enemyKey]);
+        } else if (mobLibrary && mobLibrary[enemyKey]) {
+            this.mob = new Mob(this, 900, height - 500, mobLibrary[enemyKey]);
+        }
+    }
+
+    initPlayer() {
+        const playerLibrary = this.cache.json.get('playerData');
+        this.player = new Player(this, 260, this.scale.height - 300, playerLibrary[this.playerType]);
+    }
+
+    initMechanics() {
+        const { width, height } = this.scale;
+        this.letterWheel = new LetterWheel(this, width / 2, height - 200).setScale(0.7);
+        this.shuffleBtn = new Shuffle(this, this.letterWheel.x, this.letterWheel.y, this.letterWheel);
+        this.cooldownUI = new CoolDown(this, this.letterWheel.x + 400, this.letterWheel.y + 200);
+
+        // Sync Bars
+        const relX = this.letterWheel.x - this.player.x;
+        const relY = this.letterWheel.y - this.player.y;
+        this.player.powerBarBg.setPosition(relX, relY).setScale(0.4);
+        this.player.powerBar.setPosition(relX, relY).setScale(0.4);
+    }
+
+    initUI() {
+        UIHelper.createButton(this, this.scale.width / 2, 30, 3, 0.2, () => {
+            this.scene.pause();
+            this.scene.launch('MainMenu', { parentKey: this.scene.key });
+        });
+    }
+
+    // --- 4. COMBAT LOGIC ---
+    handleAttack(word, isTarget, letterObjects) {
+        const lowWord = word.toLowerCase();
+        if (this.cooldownUI.isWordLocked(lowWord)) {
+            this.showDamageText(this.player.x, this.player.y, "COOLDOWN!", "#ff0000");
+            this.sound.play('sfx-explosion');
+            return;
+        }
+
+        const dynamicCooldown = Math.max(1000, 10000 - (word.length * 1000));
+        this.cooldownUI.addWord(lowWord, dynamicCooldown);
+
+        let rawBaseDamage = 0;
+        let totalFreeze = 0;
+        let totalMultiplier = 1;
+        let effectsFound = [];
+        let shouldSkipAttack = false;
+
+        // Effect Check
+        letterObjects.forEach(l => { if (l.effectType === 'fire') totalMultiplier *= 1.5; });
+
+        letterObjects.forEach((letter, i) => {
+            if (typeof letter.execute === 'function') {
+                const result = letter.execute(this.player, this.mob, i, word.length);
+                if (result.isCritical) isTarget = true;
+                if (result.cancelAttack) shouldSkipAttack = true;
+                if (result.isUsed) effectsFound.push(letter.effectType);
+                rawBaseDamage += result.damage;
+                if (result.freezePower) totalFreeze += (result.freezePower * Math.max(1, Math.round(word.length / 4))) * totalMultiplier;
+            } else {
+                rawBaseDamage += 5;
+            }
+        });
+
+        let finalDamage = Math.round(rawBaseDamage * totalMultiplier);
+
+        if (!shouldSkipAttack) {
+            const actualDealt = this.player.fire(finalDamage, isTarget);
+            this.player.fireSpell(isTarget, effectsFound, actualDealt, this.mob, () => {
+                if (totalFreeze > 0) this.mob.applyFreeze(totalFreeze);
+            });
+        } else if (totalFreeze > 0) {
+            this.mob.applyFreeze(totalFreeze);
+        }
+    }
+
+    handleCombat(attacker, target) {
+        if (!target || target.hp <= 0) return;
+
+        let damage = attacker.attackDamage || 0;
+        if (attacker.isCritical) this.showDamageText(target.x, target.y - 100, "CRITICAL!", "#ffff00");
+
+        target.takeDamage(damage);
+        if (target.updateUI) target.updateUI();
+
+        const color = (damage === 0) ? "#00ffff" : "#ff0000";
+        const text = (damage === 0) ? "BLOCKED" : `-${damage}`;
+        this.showDamageText(target.x, target.y, text, color);
+
+        this.cameras.main.shake(100, 0.01);
+        this.tweens.add({
+            targets: target.sprite,
+            tint: 0xff0000,
+            duration: 100,
+            yoyo: true,
+            onComplete: () => target.isFrozen ? target.sprite.setTint(0x00ffff) : target.sprite.clearTint()
+        });
+
+        if (target.hp <= 0) {
+            if (typeof target.die === 'function') target.die();
+            if (target === this.mob) this.time.delayedCall(2000, () => this.nextStage());
+        }
+
+        if (this.player.hp <= 0) this.triggerGameOver();
+    }
+
+    // --- 5. SCENE STATE ---
+    nextStage() {
+        const nextLevel = this.currentLevelNum + 1;
+        const allStages = this.cache.json.get('stageData');
+        const nextKey = `Stage${nextLevel.toString().padStart(2, '0')}`;
+        
+        if (allStages[nextKey]) {
+            this.scene.restart({ level: nextLevel, playerType: this.playerType });
+        } else {
+            this.scene.start('Credits');
+        }
+    }
+
+    triggerGameOver() {
+        this.tweens.killTweensOf(this.player.sprite);
+        this.time.delayedCall(1000, () => {
+            this.scene.pause();
+            this.scene.launch('GameOver', { score: this.currentScore });
+        });
+    }
+
+    showDamageText(x, y, amount, textColor = '#ff0000') {
+        const text = this.add.text(x, y - 50, amount, {
+            fontFamily: 'MagicFont', fontSize: '48px', color: textColor,
+            stroke: '#ffffff', strokeThickness: 4
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: text, y: y - 150, alpha: 0,
+            duration: 1500, ease: 'Cubic.easeOut',
+            onComplete: () => text.destroy()
+        });
+    }
+>>>>>>> b733ca7 (Updated files from my device)
 }

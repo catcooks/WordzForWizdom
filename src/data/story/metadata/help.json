@@ -1,0 +1,36 @@
+{
+  "pages": {
+    "1": {
+      "title": "HOW TO PLAY",
+      "subtitle": "Basic Controls",
+      "content": "Master the art of word-weaving to defeat your foes.",
+      "bullets": [
+        "Type words using letters on the wheel.",
+        "Submit words to cast spells.",
+        "Longer words deal more damage!",
+        "With keyboard support"
+      ]
+    },
+    "2": {
+      "title": "BATTLE MECHANICS",
+      "subtitle": "Mana & Ultimate",
+      "content": "Strategic use of your resources is key to survival.",
+      "bullets": [
+        "Ultimate: Next word deals 2x damage at 100% gauge.",
+        "Mana: Regenerates slowly, used for special letters.",
+        "Shields: Absorb damage before your HP is touched."
+      ]
+    },
+    "3": {
+      "title": "SPECIAL LETTERS",
+      "subtitle": "Elemental Effects",
+      "content": "Certain letters carry magical properties:",
+      "bullets": [
+        "FIRE: Bonus damage (best as first letter).",
+        "HEAL: Restores HP based on word length.",
+        "SHIELD: Protects your hearts.",
+        "FROST: Freezes the enemy."
+      ]
+    }
+  }
+}

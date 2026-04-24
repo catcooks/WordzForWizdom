@@ -1,0 +1,65 @@
+{
+  "nodes": {
+    "Meet the Alchemist": {
+      "archmage_cure_intro": {
+        "speaker": "Player",
+        "text": "I greet you, Great Alchemist...",
+        "portrait": "Neutral",
+        "next_node": "Player_intro_01"
+      },
+      "Player_intro_01": {
+        "speaker":"Player",
+        "text": "the alchemist... he has fallen ill",
+        "portrait": "Sad",
+        "next_node": "Alchemist_intro_01"
+
+      },
+      "Alchemist_intro_01": {
+        "speaker": "Alchemist",
+        "text": "The great Archmage has fallen ill you say... Impossible!",
+        "portrait": "Neutral",
+        "next_node": "Player_intro_02"
+      },
+      "Player_intro_02": {
+        "speaker": "Player",
+        "text": "I'm sorry to say this, but I spoke nothing but the truth.",
+        "portrait": "Sad",
+        "next_node": "Alchemist_intro_02"
+      },
+      "Alchemist_intro_02": {
+        "speaker": "Alchemist",
+        "text": "...What are the symptoms?",
+        "portrait": 1,
+        "next_node": "Alchemist_quest_ask"
+      }
+    },
+    "Collect Ingredients": {
+      "Alchemist_quest_ask": {
+        "speaker": "Alchemist",
+        "text": "I need 10 goblin ears, 3 ogre tongues, and herbs.",
+        "quest_trigger": {
+          "id": "archmage_cure",
+          "requirements": {
+            "goblin_ear": 10,
+            "ogre_tongue": 3,
+            "gaebar_herbs": 1
+          }
+        }
+      },
+      "archmage_cure_active": {
+        "speaker": "Alchemist",
+        "text": "Have you collected the ingredients yet?",
+        "portrait": "Neutral",
+        "next_node": null
+      }
+    },
+    "Return to the Alchemist": {
+      "archmage_cure_completed": {
+        "speaker": "Alchemist",
+        "text": "Thank you! I will start on the cure.",
+        "portrait": "Happy",
+        "next_node": null
+      }
+    }
+  }
+}

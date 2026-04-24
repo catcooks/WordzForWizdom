@@ -1,0 +1,29 @@
+{
+  "archmage_cure": {
+    "title": "A Cure for the Archmage",
+    "current_stage": 0,
+    "quest": [
+      {
+        "id": 0,
+        "title": "Meet the Alchemist",
+        "description": "The Archmage has fallen ill. Meet the Alchemist at the tower to find a cure.",
+        "requirements": "Click the alchemist in the tower",
+        "is_completed": false
+      },
+      {
+        "id": 1,
+        "title": "Collect Ingredients",
+        "description": "The Alchemist has given you a list of ingredients needed for the cure. Collect them and return to the Alchemist.",
+        "requirements": "defeat goblins and ogres to collect the required ingredients",
+        "is_completed": false
+      },
+      {
+        "id": 2,
+        "title": "Return to the Alchemist",
+        "description": "Return to the Alchemist with the collected ingredients.",
+        "requirements": "Return to the Alchemist with the collected ingredients",
+        "is_completed": false
+      }
+    ]
+  }
+}

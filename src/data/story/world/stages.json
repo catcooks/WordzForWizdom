@@ -1,0 +1,17 @@
+{
+  "Stage01": {
+    "Background": "bg-spring",
+    "Enemy": "goblin",
+    "bgm": ""
+  },
+  "Stage02": {
+    "Background": "bg-fall",
+    "Enemy": "ogre",
+    "bgm": ""
+  },
+  "Stage03": {
+    "Background": "bg-fall",
+    "Enemy": "ogreMage",
+    "bgm": ""
+  }
+}
